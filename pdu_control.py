@@ -23,7 +23,6 @@ def mainLoop(host, mqtt_broker):
             mqttc.loop_start()
             #publish HA autodiscovery details
             for i in range(0,8)
-                #mqtcc.publish(MQTT_HA_AUTODISCOVERY_TOPIC + 'outlet_' + i + '/config','{"availability": [{"topic": "ipPDU/status/status"}],"command_topic": "ipPDU/command/outlets/' + i + '","device": {"identifiers": ["ipPDU_outlet_' + i + '"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU_outlet_' + i + '"}, "name": "ipPDU_outlet_' + i + '", "payload_off": "OFF", "payload_on": "ON", "state_topic": "ipPDU/status/outlets/' + i + '", "unique_id": "ipPDU_outlet_' + i + '_pdu_control"}')
                 print(MQTT_HA_AUTODISCOVERY_TOPIC + 'outlet_' + i + '/config')
                 print('/config','{"availability": [{"topic": "ipPDU/status/status"}],"command_topic": "ipPDU/command/outlets/' + i + '","device": {"identifiers": ["ipPDU_outlet_' + i + '"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU_outlet_' + i + '"}, "name": "ipPDU_outlet_' + i + '", "payload_off": "OFF", "payload_on": "ON", "state_topic": "ipPDU/status/outlets/' + i + '", "unique_id": "ipPDU_outlet_' + i + '_pdu_control"}'
             while True:
@@ -33,7 +32,7 @@ def mainLoop(host, mqtt_broker):
                 time.sleep(5)
 
 
-def cb_mqtt_on_connect(client, kettle, flags, rec_code):
+def cb_mqtt_on_connect(client, flags, rec_code):
     """ The callback for when the client receives a CONNACK response from the server. """
     print("Connected to MQTT broker with result code " + str(rec_code))
 
