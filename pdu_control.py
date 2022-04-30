@@ -23,8 +23,7 @@ def mainLoop(host, mqtt_broker):
             mqttc.loop_start()
             #publish HA autodiscovery details
             for i in range(0,8)
-                print(MQTT_HA_AUTODISCOVERY_TOPIC + 'outlet_' + i + '/config')
-                print('/config','{"availability": [{"topic": "ipPDU/status/status"}],"command_topic": "ipPDU/command/outlets/' + i + '","device": {"identifiers": ["ipPDU_outlet_' + i + '"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU_outlet_' + i + '"}, "name": "ipPDU_outlet_' + i + '", "payload_off": "OFF", "payload_on": "ON", "state_topic": "ipPDU/status/outlets/' + i + '", "unique_id": "ipPDU_outlet_' + i + '_pdu_control"}'
+                mqttc.publish(MQTT_HA_AUTODISCOVERY_TOPIC + 'outlet_' + str(i) + '/config','{"availability": [{"topic": "ipPDU/status/status"}],"command_topic": "ipPDU/command/outlets/' + str(i) + '","device": {"identifiers": ["ipPDU_outlet_' + str(i) + '"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU_outlet_' + str(i) + '"}, "name": "ipPDU_outlet_' + str(i) + '", "payload_off": "OFF", "payload_on": "ON", "state_topic": "ipPDU/status/outlets/' + str(i) + '", "unique_id": "ipPDU_outlet_' + str(i) + '_pdu_control"}')
             while True:
                 if not mqtt_broker is None:
                     mqttc.publish(MQTT_STATUS_TOPIC + "/STATE", json.dumps(pdu.status(), indent = 2))
