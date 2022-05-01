@@ -27,7 +27,7 @@ Arguments:
 
 Example: pdu_control.py 10.0.0.10 --mqtt 10.0.0.15 1883 mqtt_user mqtt_pwd123
 
-Providing all arguments are accurate the script will establish a link to the MQTT broker and publish the discovery messages for HA integration.  Status updates will publish every 5 seconds.  Currently the discovery topics only cover the outlets themselves, I will add the PDU environmental and power values when i get a chance.
+Providing all arguments are accurate the script will establish a link to the MQTT broker and publish the discovery messages for HA integration.  Status updates will publish every 5 seconds.  Currently the status reported by the device is not included in the sensors, I plan to add this soon.
 
 I am new to Python but learning, happy to have any comments/suggestions/criticisms
 
