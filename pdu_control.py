@@ -7,7 +7,8 @@ import paho.mqtt.client as mqtt     # pip install paho.mqtt
 MQTT_BASE = "ipPDU/"
 MQTT_COMMAND_TOPIC = MQTT_BASE + "command"
 MQTT_STATUS_TOPIC = MQTT_BASE + "status"
-MQTT_HA_AUTODISCOVERY_TOPIC = "homeassistant/switch/" + "ipPDU"
+MQTT_HA_OUTLET_DISCOVERY_TOPIC = "homeassistant/switch/" + "ipPDU"
+MQTT_HA_SENSOR_DISCOVERY_TOPIC = "homeassistant/sensor/" + "ipPDU"
 
 def mainLoop(host, mqtt_broker):
     if not mqtt_broker is None:
@@ -21,15 +22,29 @@ def mainLoop(host, mqtt_broker):
             mqttc.will_set(MQTT_STATUS_TOPIC + "/status", "offline", retain=True)
             mqttc.connect(mqtt_broker[0], int(mqtt_broker[1]))
             mqttc.loop_start()
-            #publish HA autodiscovery details
+            #publish sensor HA autodiscovery details
+            mqttc.publish(MQTT_HA_SENSOR_DISCOVERY_TOPIC + '/current/config','{"availability": [{"topic": "ipPDU/status/status"}],"device": {"identifiers": ["ipPDU"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU"}, "device_class": "current", "enabled_by_default": true, "name": "current", "state_class": "measurement", "state_topic": "ipPDU/status/STATE", "unique_id": "ipPDU_current_pdu_control", "unit_of_measurement": "A", "value_template": "{{ value_json.current }}"}', retain=True)            
+            mqttc.publish(MQTT_HA_SENSOR_DISCOVERY_TOPIC + '/temperature/config','{"availability": [{"topic": "ipPDU/status/status"}],"device": {"identifiers": ["ipPDU"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU"}, "device_class": "temperature", "enabled_by_default": true, "name": "temperature", "state_class": "measurement", "state_topic": "ipPDU/status/STATE", "unique_id": "ipPDU_temperature_pdu_control", "unit_of_measurement": "°C", "value_template": "{{ value_json.temperature }}"}', retain=True)
+            mqttc.publish(MQTT_HA_SENSOR_DISCOVERY_TOPIC + '/humidity/config','{"availability": [{"topic": "ipPDU/status/status"}],"device": {"identifiers": ["ipPDU"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU"}, "device_class": "humidity", "enabled_by_default": true, "name": "humidity", "state_class": "measurement", "state_topic": "ipPDU/status/STATE", "unique_id": "ipPDU_humidity_pdu_control", "unit_of_measurement": "%", "value_template": "{{ value_json.humidity }}"}', retain=True)
+            mqttc.publish(MQTT_HA_SENSOR_DISCOVERY_TOPIC + '/current_status/config','{"availability": [{"topic": "ipPDU/status/status"}],"device": {"identifiers": ["ipPDU"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU"}, "enabled_by_default": true, "name": "current_status", "state_topic": "ipPDU/status/STATE", "unique_id": "ipPDU_status_pdu_control"', retain=True)
+            #publish outlet HA autodiscovery details
             for i in range(0,8):
-                mqttc.publish(MQTT_HA_AUTODISCOVERY_TOPIC + 'switch_' + str(i) + '/config','{"availability": [{"topic": "ipPDU/status/status"}],"command_topic": "ipPDU/command/outlets/' + str(i) + '","device": {"identifiers": ["ipPDU_outlet_' + str(i) + '"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU_outlet_' + str(i) + '"}, "name": "ipPDU_outlet_' + str(i) + '", "payload_off": "off", "payload_on": "on", "state_topic": "ipPDU/status/outlets/' + str(i) + '", "unique_id": "ipPDU_outlet_' + str(i) + '_pdu_control"}', retain=True)
+                mqttc.publish(MQTT_HA_OUTLET_DISCOVERY_TOPIC + '/switch_' + str(i) + '/config','{"availability": [{"topic": "ipPDU/status/status"}],"command_topic": "ipPDU/command/outlets/' + str(i) + '","device": {"identifiers": ["ipPDU"], "manufacturer": "Intellinet", "model": "IP smart PDU", "name": "ipPDU"}, "name": "ipPDU_outlet_' + str(i) + '", "payload_off": "off", "payload_on": "on", "state_topic": "ipPDU/status/outlets/' + str(i) + '", "unique_id": "ipPDU_outlet_' + str(i) + '_pdu_control"}', retain=True)
             while True:
                 if not mqtt_broker is None:
-                    mqttc.publish(MQTT_STATUS_TOPIC + "/STATE", json.dumps(pdu.status(), indent = 2))
+                    states = pdu.status()
+                    mqttc.publish(MQTT_STATUS_TOPIC + "/STATE", json.dumps(states, indent=2))
                     mqttc.publish(MQTT_STATUS_TOPIC + "/status", "online", retain=True)
+                    update_sensors(mqttc, "current", states)
+                    update_sensors(mqttc, "temperature", states)
+                    update_sensors(mqttc, "humidity", states)
+                    update_sensors(mqttc, "current_status", states)
+                    for i in range(len(states["outlet_states"])): #for each outlet publish a status update
+                        mqttc.publish(MQTT_STATUS_TOPIC + "/outlets/" + str(i),states["outlet_states"][i])
                 time.sleep(5)
 
+def update_sensors(mqttc, sensor, states):
+    mqttc.publish(MQTT_STATUS_TOPIC + "/sensors/" + sensor, states[sensor])
 
 def cb_mqtt_on_connect(client, none, flags, rec_code):
     """ The callback for when the client receives a CONNACK response from the server. """
