@@ -188,10 +188,10 @@ class IPU():
         endpoint = self.endpoints["status"]
         e = self._api_request(endpoint)
         return {
-            "current_amperes": self._extract_value(e, "cur0"),
-            "degree_celcius": self._extract_value(e, "tempBan"),
-            "humidity_percent": self._extract_value(e, "humBan"),
-            "stat": self._extract_value(e, "stat0"),
+            "current": self._extract_value(e, "cur0"),
+            "temperature": self._extract_value(e, "tempBan"),
+            "humidity": self._extract_value(e, "humBan"),
+            "current_status": self._extract_value(e, "stat0"),
             "outlet_states": [self._extract_value(e, "outletStat{}".format(i)) for i in range(0,8)]
         }
 
