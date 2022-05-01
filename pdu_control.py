@@ -31,7 +31,7 @@ def mainLoop(host, mqtt_broker):
                 time.sleep(5)
 
 
-def cb_mqtt_on_connect(client, flags, rec_code):
+def cb_mqtt_on_connect(client, none, flags, rec_code):
     """ The callback for when the client receives a CONNACK response from the server. """
     print("Connected to MQTT broker with result code " + str(rec_code))
 
